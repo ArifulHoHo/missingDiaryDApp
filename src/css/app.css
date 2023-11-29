@@ -50,6 +50,7 @@ form button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-left: 20px;
 }
 
 #missingPersonsListResults td{
