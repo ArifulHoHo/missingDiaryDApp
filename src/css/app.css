@@ -4,7 +4,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+
   margin: 0;
 }
 
@@ -23,6 +23,7 @@ form {
   padding: 16px;
   border-radius: 8px;
   margin-bottom: 45px;
+  margin-top: 20px;
 }
 
 form label {
@@ -51,13 +52,27 @@ form button {
   cursor: pointer;
 }
 
-ul {
-  list-style-type: none;
-  padding: 0;
+#missingPersonsListResults td{
+  white-space: pre-line;
 }
 
-#missingList {
-  width: 50%;
-  border: 1px solid #ccc;
-  padding: 16px;
+#listHeader {
+  display: flex;
+  
+  align-items: center;
+  justify-content: center;
 }
+
+#openFormButton{
+  margin-top: 16px;
+  padding: 10px;
+  width: 100px;
+  box-sizing: border-box;
+  background-color: #2ecc71;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+

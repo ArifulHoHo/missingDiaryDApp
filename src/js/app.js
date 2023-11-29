@@ -18,27 +18,27 @@ App = {
      App.webProvider = provider;
    }
    else{
-     $("#loader-msg").html('No metamask ethereum provider found')
+    //  $("#loader-msg").html('No metamask ethereum provider found')
      console.log('No Ethereum provider')
      // specify default instance if no web3 instance provided
      App.webProvider = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
    }
 
-   return App.render();
+   return App.initContract();
  },
  
 
 
  initContract: function() {
-     $.getJSON("Election.json", function( election ){
+     $.getJSON("missingDiary.json", function( missingDiary ){
      // instantiate a new truffle contract from the artifict
-     App.contracts.Election = TruffleContract( election );
+     App.contracts.MissingDiary = TruffleContract( missingDiary );
 
 
      // connect provider to interact with contract
-     App.contracts.Election.setProvider( App.webProvider );
+     App.contracts.MissingDiary.setProvider( App.webProvider );
      
-     App.listenForEvents();
+    //  App.listenForEvents();
 
 
      return App.render();
@@ -47,13 +47,15 @@ App = {
 
 
  render: async function(){
-   let electionInstance;
+   let missingDiaryInstance;
    const loader = $("#loader");
    const content = $("#content");
-
+   
+   
 
    loader.show();
    content.hide();
+   
   
    // load account data
    if (window.ethereum) {
@@ -73,74 +75,130 @@ App = {
    }
 
 
-   //load contract ddata
-   App.contracts.Election.deployed()
-   .then( function( instance ){
-     electionInstance = instance;
+   //load contract data
+   App.contracts.MissingDiary.deployed()
+  .then( function( instance ){
+    missingDiaryInstance = instance;
+    return missingDiaryInstance.missingPersonListCounter();
+  })
+  .then( function(listCounter){
+    var missingPersonsListResults = $("#missingPersonsListResults");
+    missingPersonsListResults.empty();
+
+    const divisonMapping = {
+      0: 'Barishal',
+      1: 'Chittagong',
+      2: 'Dhaka',
+      3: 'Khulna',
+      4: 'Rajshahi',
+      5: 'Rangpur',
+      6: 'Mymensingh',
+      7: 'SYlhet',
+     };
+
+     const statusMapping = {
+      0: 'Not Found',
+      1: 'Found',
+     };
+  
+    for (let i = 1; i <= listCounter ; i++) {
+      missingDiaryInstance.missingPersons(i)
+      .then( function(person){
+        var divison = divisonMapping[person[5]];
+        var personTemplate = "<tr><th>" + i +"</th><td>" + person[0] + "</td><td>" + person[1] + "</td><td>" + person[2] + "</td><td>" + 
+        person[4] + "</td><td>" + divison + "</td><td>" + person[6] + "</td><td>" + statusMapping[person[3]] + "</td></tr>";
+        missingPersonsListResults.append( personTemplate );
+      })
+    };
+    loader.hide();
+    content.show();
+  })
+  //  App.contracts.Election.deployed()
+  //  .then( function( instance ){
+  //    electionInstance = instance;
 
 
-     return electionInstance.candidatesCount();
-   }) 
-   .then( function( candidatesCount ){
-     var candidatesResults = $("#candidatesResults");
-     candidatesResults.empty();
+  //    return electionInstance.candidatesCount();
+  //  }) 
+  //  .then( function( candidatesCount ){
+  //    var candidatesResults = $("#candidatesResults");
+  //    candidatesResults.empty();
 
 
-     var candidatesSelect = $("#candidatesSelect");
-     candidatesSelect.empty();
+  //    var candidatesSelect = $("#candidatesSelect");
+  //    candidatesSelect.empty();
 
 
-     for (let i = 1; i <= candidatesCount; i++) {
-       electionInstance.candidates( i )
-       .then( function( candidate ){
-         var id = candidate[0];
-         var name = candidate[1];
-         var voteCount = candidate[2];
+  //    for (let i = 1; i <= candidatesCount; i++) {
+  //      electionInstance.candidates( i )
+  //      .then( function( candidate ){
+  //        var id = candidate[0];
+  //        var name = candidate[1];
+  //        var voteCount = candidate[2];
         
-         // render results
-         var candidateTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>"
-         candidatesResults.append( candidateTemplate );
+  //        // render results
+  //        var candidateTemplate = "<tr><th>" + id + "</th><td>" + name + "</td><td>" + voteCount + "</td></tr>"
+  //        candidatesResults.append( candidateTemplate );
 
 
-         //render balloot option
-         let candidateOption = "<option value=" + id +  ">" + name + "</option>"
-         candidatesSelect.append( candidateOption )
-       });
-     }
-     return electionInstance.voters(  App.account )
-   })
-   .then( function( hasVoted ){
-     // don't allow user to vote
-     if(hasVoted){
-       $( "form" ).hide()
-     }
-     loader.hide();
-     content.show();
-   })
-   .catch( function( error ){
-     console.warn( error )
-   });
+  //        //render balloot option
+  //        let candidateOption = "<option value=" + id +  ">" + name + "</option>"
+  //        candidatesSelect.append( candidateOption )
+  //      });
+  //    }
+  //    return electionInstance.voters(  App.account )
+  //  })
+  //  .then( function( hasVoted ){
+  //    // don't allow user to vote
+  //    if(hasVoted){
+  //      $( "form" ).hide()
+  //    }
+  //    loader.hide();
+  //    content.show();
+  //  })
+  //  .catch( function( error ){
+  //    console.warn( error )
+  //  });
+ },
+
+ toggleForm: function(){
+  var form = $('#missingForm');
+  var openFormButton = $('#openFormButton')
+  if (form.is(':hidden')){
+    form.show();
+    openFormButton.hide();
+  }else {
+    form.hide();
+    openFormButton.show();
+  }
+  
  },
 
 
- // casting vote
- castVote: function(){
-   let candidateId = $("#candidatesSelect").val();
-   App.contracts.Election.deployed()
-   .then( function( instance ){
-     return instance.vote( candidateId, { from: App.account[0] } )
-   })
-   .then( function( result ){
-     // wait for voters to update vote
-     console.log({ result })
-       // content.hide();
-       // loader.show();
-       alert("You have voted successfully")
-   })
-   .catch( function( err ){
-     console.error( err )
-   } )
+ // add a missing person
+ addMissingPerson: function(){
+    let name = $("#name").val();
+    let age = parseInt($("#age").val());
+    let height = parseInt($("#height").val());
+    let description = $("#description").val();
+    let division = parseInt($("#division").val());
+    let contactNumber = $("#contactNumber").val();
+
+    console.log(name,age,height,description,division,contactNumber)
+
+    App.contracts.MissingDiary.deployed()
+    .then( function(instance){
+      return instance.addMissingPerson(name,age,height,description,division,contactNumber, {from : App.account[0]});
+    })
+    .then(function(result){
+      console.log(result);
+      alert("Missing Person details have been added successfully");
+    })
+    .catch( function(err){
+      console.log(err);
+    })
  },
+
  
  // voted event
  listenForEvents: function(){
