@@ -64,8 +64,7 @@ form button {
 }
 
 #openFormButton{
-  margin-top: 16px;
-  padding: 10px;
+  padding: 8px;
   width: 100px;
   box-sizing: border-box;
   background-color: #2ecc71;

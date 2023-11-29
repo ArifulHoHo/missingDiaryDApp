@@ -93,7 +93,7 @@ App = {
       4: 'Rajshahi',
       5: 'Rangpur',
       6: 'Mymensingh',
-      7: 'SYlhet',
+      7: 'Sylhet',
      };
 
      const statusMapping = {
