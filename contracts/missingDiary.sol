@@ -37,10 +37,10 @@ contract missingDiary{
     uint public missingPersonListCounter; // tracks the size of the mapping
 
     // This event is emitted when a new missing person is added to the system
-    event MissingPersonAdded(address indexed user, bytes32 indexed personId, string name, Divison division);
+    event missingPersonAddedEvent(address indexed user, bytes32 indexed personId, string name, Divison division);
 
     //  This event is emitted when the status of a missing person is updated
-    event StatusUpdated(address indexed admin, uint indexed personId, Status status);
+    event statusUpdatedEvent(address indexed admin, uint indexed personId, Status status);
 
     // A modifier to restrict certain functions to admin users
     modifier onlyAdmin() {
@@ -86,7 +86,7 @@ contract missingDiary{
         missingCountByDivision[_division]++; // increment missing person in the division
         personIdByHash[_personIdHash] = lastPersonId;
         // emit the event of missing person being added
-        emit MissingPersonAdded(msg.sender, _personIdHash, _name, _division);
+        emit missingPersonAddedEvent(msg.sender, _personIdHash, _name, _division);
     }
 
     // function to toggle missing to found ONLY by Admin
@@ -100,7 +100,7 @@ contract missingDiary{
         missingCountByDivision[missingPersons[_personId].division]--;
 
         // emit when status is updated
-        emit StatusUpdated(admin, _personId, Status.Found);
+        emit statusUpdatedEvent(admin, _personId, Status.Found);
     }
 
     function isAdmin() external view returns (bool){

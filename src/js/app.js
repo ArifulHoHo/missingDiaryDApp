@@ -35,7 +35,8 @@ App = {
       // connect provider to interact with contract
       App.contracts.MissingDiary.setProvider(App.webProvider);
 
-      //  App.listenForEvents();
+      
+      App.listenForEvents();
 
       return App.render();
     });
@@ -45,9 +46,14 @@ App = {
     let missingDiaryInstance;
     const loader = $("#loader");
     const content = $("#content");
+    const missingPersonsListResults = $("#missingPersonsListResults");
+
 
     loader.show();
     content.hide();
+    missingPersonsListResults.empty();
+
+    
 
     // load account data
     if (window.ethereum) {
@@ -75,13 +81,11 @@ App = {
         return missingDiaryInstance.missingPersonListCounter();
       })
       .then(function (listCounter) {
-        var missingPersonsListResults = $("#missingPersonsListResults");
-        missingPersonsListResults.empty();
-
-        if (listCounter == 0){
-          loader.html('There is no data available!');
+        if (listCounter == 0) {
+          loader.html("There is no data available!");
           return;
         }
+        missingPersonsListResults.empty();
 
         const divisonMapping = {
           0: "Barishal",
@@ -100,8 +104,13 @@ App = {
         };
 
         foundPeopleNumber = 0;
+        
+        
         for (let i = 1; i <= listCounter; i++) {
+          
+          
           missingDiaryInstance.missingPersons(i).then(function (person) {
+            console.log("index: ", i);
             var status = statusMapping[person[3]];
 
             // if (status === "Found") {
@@ -111,7 +120,7 @@ App = {
             var name = person[0];
             var age = person[1];
             var height = person[2];
-            
+
             var description = person[4];
             var divison = divisonMapping[person[5]];
             var contactNumber = person[6];
@@ -131,41 +140,43 @@ App = {
               "</td><td>" +
               contactNumber +
               "</td><td class=admin-column>" +
-              "<button onclick=\"App.toggleStatus('" + i + "')\">"+status+"</button>" +
+              "<button onclick=\"App.toggleStatus('" +
+              i +
+              "')\">" +
+              status +
+              "</button>" +
               "</td></tr>";
             missingPersonsListResults.append(personTemplate);
           });
-        };
+        }
         loader.hide();
         content.show();
-  
-      })
-      
-      // wait 300 ms for the render to complete and then call the admin function
-      setTimeout(() => {
-        App.isAdmin();
-      }, 400)
-      
+      });
+
+    // wait 300 ms for the render to complete and then call the admin function
+    setTimeout(() => {
+      App.isAdmin();
+    }, 400);
   },
 
-  isAdmin: function(){
+  isAdmin: function () {
     App.contracts.MissingDiary.deployed()
-    .then(function (instance) {
+      .then(function (instance) {
         return instance.isAdmin({ from: App.account[0] });
       })
-    .then(function (isAdmin) {
-      console.log(isAdmin);
-      App.adminAcess = isAdmin;
-      console.log(App.adminAcess);
+      .then(function (isAdmin) {
+        // console.log(isAdmin);
+        App.adminAcess = isAdmin;
+        // console.log(App.adminAcess);
 
-      if (App.adminAcess == true){
-        const adminColumn = document.querySelectorAll(".admin-column");
-        console.log('number of rows',adminColumn.length);
-        adminColumn.forEach((column) => {
-          column.style.display = "table-cell";
-        });
-      }
-    })
+        if (App.adminAcess == true) {
+          const adminColumn = document.querySelectorAll(".admin-column");
+          
+          adminColumn.forEach((column) => {
+            column.style.display = "table-cell";
+          });
+        }
+      });
   },
 
   toggleForm: function () {
@@ -182,16 +193,16 @@ App = {
 
   toggleStatus: function (id) {
     App.contracts.MissingDiary.deployed()
-    .then(function (instance) {
+      .then(function (instance) {
         return instance.toggleStatus(+id, { from: App.account[0] });
       })
-    .then(function(result){
-      console.log(result);
-      alert("Status has been changed successfully");
-    })
-    .catch(function(error){
-      console.error(error);
-    })
+      .then(function (result) {
+        console.log(result);
+        alert("Status has been changed successfully");
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
   },
 
   // add a missing person
@@ -228,22 +239,43 @@ App = {
 
   // voted event
   listenForEvents: function () {
-    App.contracts.Election.deployed().then(function (instance) {
+    App.contracts.MissingDiary.deployed().then(function (instance) {
+
+      
+
       instance
-        .votedEvent(
+        .missingPersonAddedEvent(
           {},
           {
-            fromBlock: 0,
-            toBlock: "latests",
+            fromBlock: "latest",
+            
+          }
+        )
+        .watch(function (err, event) {
+          console.log("Triggered missing person added event", event);
+
+          App.render();
+        });
+
+      instance
+        .statusUpdatedEvent(
+          {},
+          {
+            fromBlock: "latest",
+            
           }
         )
         .watch(function (err, event) {
           console.log("Triggered", event);
-          // reload page
+
           App.render();
         });
     });
   },
+  
+
+  
+  
 };
 
 $(function () {
