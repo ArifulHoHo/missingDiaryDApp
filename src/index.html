@@ -88,7 +88,7 @@
         <button id="openFormButton" type="button" onclick="App.toggleForm()">ADD</button>
       </div>
       
-      <div id="loader">
+      <div class="container" id="loader">
         <p id="loader-msg" class="text-center">Loading...</p>
       </div>
       <div id="content" >
@@ -102,12 +102,11 @@
               <th scope="col">Description</th>
               <th scope="col">Division</th>
               <th scope="col">Contact Number of Relative</th>
-              <th scope="col" id="adminUpdateColumnR">Status</th>
+              <th scope="col" class="admin-column">Status</th>
             </tr>
           </thead>
           <tbody id="missingPersonsListResults">
-            <tr><th>" + i +"</th><td>" + person[0] + "</td><td>" + person[1] + "</td><td>" + person[2] + "</td><td>" + 
-              person[4] + "</td><td>" + divison + "</td><td>" + person[6] + "</td><td id="adminUpdateColumnR">" + statusMapping[person[3]] + "</td></tr>
+             <!-- add rows from javascript -->
           </tbody>
         </table>
       </div>

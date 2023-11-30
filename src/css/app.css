@@ -75,4 +75,7 @@ form button {
   cursor: pointer;
 }
 
+.admin-column {
+  display: none;
+}
 

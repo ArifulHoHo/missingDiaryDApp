@@ -4,7 +4,7 @@ pragma solidity >=0.8.2 <0.9.0;
 contract missingDiary{
     
     // stores the address of the admin
-    address private immutable admin;
+    address public immutable admin;
 
     // An enumeration representing the status of a missing person, either "Missing" or "Found."
     enum Status { Missing, Found }
@@ -101,6 +101,10 @@ contract missingDiary{
 
         // emit when status is updated
         emit StatusUpdated(admin, _personId, Status.Found);
+    }
+
+    function isAdmin() external view returns (bool){
+        return msg.sender == admin;
     }
 }
 
