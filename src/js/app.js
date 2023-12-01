@@ -35,7 +35,6 @@ App = {
       // connect provider to interact with contract
       App.contracts.MissingDiary.setProvider(App.webProvider);
 
-      
       App.listenForEvents();
 
       return App.render();
@@ -48,12 +47,9 @@ App = {
     const content = $("#content");
     const missingPersonsListResults = $("#missingPersonsListResults");
 
-
     loader.show();
     content.hide();
     missingPersonsListResults.empty();
-
-    
 
     // load account data
     if (window.ethereum) {
@@ -72,7 +68,7 @@ App = {
         $("#accountAddress").html("Your Account: Not Connected");
         console.error(error);
       }
-    }
+    };
 
     //load contract data
     App.contracts.MissingDiary.deployed()
@@ -104,11 +100,8 @@ App = {
         };
 
         foundPeopleNumber = 0;
-        
-        
+
         for (let i = 1; i <= listCounter; i++) {
-          
-          
           missingDiaryInstance.missingPersons(i).then(function (person) {
             console.log("index: ", i);
             var status = statusMapping[person[3]];
@@ -125,27 +118,28 @@ App = {
             var divison = divisonMapping[person[5]];
             var contactNumber = person[6];
             var personTemplate =
-              "<tr><th>" +
+              "<tr><th class='center'>" +
               i +
-              "</th><td>" +
+              "</th><td class='center'>" +
               name +
-              "</td><td>" +
+              "</td><td class='center'>" +
               age +
-              "</td><td>" +
+              "</td><td class='center'>" +
               height +
-              "</td><td>" +
+              "</td><td class='center'>" +
               description +
-              "</td><td>" +
+              "</td><td class='center'>" +
               divison +
-              "</td><td>" +
+              "</td><td class='center'>" +
               contactNumber +
-              "</td><td class=admin-column>" +
+              "</td><td class='admin-column center'>" +
               "<button onclick=\"App.toggleStatus('" +
               i +
               "')\">" +
               status +
               "</button>" +
               "</td></tr>";
+
             missingPersonsListResults.append(personTemplate);
           });
         }
@@ -156,7 +150,7 @@ App = {
     // wait 300 ms for the render to complete and then call the admin function
     setTimeout(() => {
       App.isAdmin();
-    }, 400);
+    }, 200);
   },
 
   isAdmin: function () {
@@ -171,7 +165,7 @@ App = {
 
         if (App.adminAcess == true) {
           const adminColumn = document.querySelectorAll(".admin-column");
-          
+
           adminColumn.forEach((column) => {
             column.style.display = "table-cell";
           });
@@ -240,15 +234,11 @@ App = {
   // voted event
   listenForEvents: function () {
     App.contracts.MissingDiary.deployed().then(function (instance) {
-
-      
-
       instance
         .missingPersonAddedEvent(
           {},
           {
             fromBlock: "latest",
-            
           }
         )
         .watch(function (err, event) {
@@ -262,7 +252,6 @@ App = {
           {},
           {
             fromBlock: "latest",
-            
           }
         )
         .watch(function (err, event) {
@@ -272,10 +261,6 @@ App = {
         });
     });
   },
-  
-
-  
-  
 };
 
 $(function () {
