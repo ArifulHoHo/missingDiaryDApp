@@ -41,15 +41,87 @@ App = {
     });
   },
 
+  renderDivisonTable: async function () {
+    const divisonMapping = {
+      0: "Barishal",
+      1: "Chittagong",
+      2: "Dhaka",
+      3: "Khulna",
+      4: "Rajshahi",
+      5: "Rangpur",
+      6: "Mymensingh",
+      7: "Sylhet",
+    };
+    var arrayOfMissingPerDivision = [];
+    const missingPerDivisonTable = $("#missingPerDivisonTable");
+    App.contracts.MissingDiary.deployed()
+    .then(function (instance) {
+      missingPerDivisonTable.empty();
+      for (let i = 0; i < 8; i++) {
+        instance.missingCountByDivision(i).then(function (num) {
+          arrayOfMissingPerDivision.push({
+            name: divisonMapping[i],
+            missing: +num,
+          });
+        });
+      };
+    });
+    
+
+    setTimeout(()=> {
+      arrayOfMissingPerDivision.sort((a,b)=>b.missing - a.missing);
+      missingPerDivisonTable.empty();
+      let n = 0;
+      for(let i=0; i<8; i++){
+          
+          if(arrayOfMissingPerDivision[i].missing > 0){
+            n++;
+            var divisionTemplate =
+            "<tr><th>" +
+            arrayOfMissingPerDivision[i].name +
+            "</th><td class='center'>" +
+            arrayOfMissingPerDivision[i].missing +
+            "</td></tr>";
+            missingPerDivisonTable.append(divisionTemplate);
+          }
+      };
+      if(n % 2 === 0){
+        var median = (arrayOfMissingPerDivision[n/2].missing + arrayOfMissingPerDivision[(n/2)+1].missing) / 2 ;
+      }else{
+        var median = arrayOfMissingPerDivision[(n/2)+1].missing/2;
+      }
+      console.log('n ',n,' and median ',median)
+      $("#show-median").text("Median: "+ median);
+    },300);
+    
+  },
+  
   render: async function () {
+    App.renderDivisonTable();
     let missingDiaryInstance;
     const loader = $("#loader");
     const content = $("#content");
     const missingPersonsListResults = $("#missingPersonsListResults");
-
+    
     loader.show();
     content.hide();
     missingPersonsListResults.empty();
+
+    const divisonMapping = {
+      0: "Barishal",
+      1: "Chittagong",
+      2: "Dhaka",
+      3: "Khulna",
+      4: "Rajshahi",
+      5: "Rangpur",
+      6: "Mymensingh",
+      7: "Sylhet",
+    };
+
+    const statusMapping = {
+      0: "Missing",
+      1: "Found",
+    };
 
     // load account data
     if (window.ethereum) {
@@ -68,8 +140,22 @@ App = {
         $("#accountAddress").html("Your Account: Not Connected");
         console.error(error);
       }
-    };
+    }
 
+    await App.contracts.MissingDiary.deployed()
+      .then(function (instance) {
+        return instance.isAdmin({ from: App.account[0] });
+      })
+      .then(function (isAdmin) {
+        App.adminAcess = isAdmin;
+      });
+
+    
+
+    
+    
+ 
+    
     //load contract data
     App.contracts.MissingDiary.deployed()
       .then(function (instance) {
@@ -83,31 +169,11 @@ App = {
         }
         missingPersonsListResults.empty();
 
-        const divisonMapping = {
-          0: "Barishal",
-          1: "Chittagong",
-          2: "Dhaka",
-          3: "Khulna",
-          4: "Rajshahi",
-          5: "Rangpur",
-          6: "Mymensingh",
-          7: "Sylhet",
-        };
-
-        const statusMapping = {
-          0: "Missing",
-          1: "Found",
-        };
-
-        foundPeopleNumber = 0;
-
         for (let i = 1; i <= listCounter; i++) {
           missingDiaryInstance.missingPersons(i).then(function (person) {
-            console.log("index: ", i);
             var status = statusMapping[person[3]];
 
             // if (status === "Found") {
-            //   foundPeopleNumber++;
             //   return 0;
             // }
             var name = person[0];
@@ -132,44 +198,27 @@ App = {
               divison +
               "</td><td class='center'>" +
               contactNumber +
-              "</td><td class='admin-column center'>" +
-              "<button onclick=\"App.toggleStatus('" +
-              i +
-              "')\">" +
-              status +
-              "</button>" +
-              "</td></tr>";
+              "</td>";
+
+            if (App.adminAcess == true && status !== "Found") {
+              console.log("in");
+              personTemplate +=
+                "<td class='center'>" +
+                '<button id="toggleStatusButton" onclick="App.toggleStatus(\'' +
+                i +
+                "')\">" +
+                status +
+                "</button>" +
+                "</td></tr>";
+            } else {
+              personTemplate += "<td class='center'>" + status + "</td></tr>";
+            }
 
             missingPersonsListResults.append(personTemplate);
           });
         }
         loader.hide();
         content.show();
-      });
-
-    // wait 300 ms for the render to complete and then call the admin function
-    setTimeout(() => {
-      App.isAdmin();
-    }, 200);
-  },
-
-  isAdmin: function () {
-    App.contracts.MissingDiary.deployed()
-      .then(function (instance) {
-        return instance.isAdmin({ from: App.account[0] });
-      })
-      .then(function (isAdmin) {
-        // console.log(isAdmin);
-        App.adminAcess = isAdmin;
-        // console.log(App.adminAcess);
-
-        if (App.adminAcess == true) {
-          const adminColumn = document.querySelectorAll(".admin-column");
-
-          adminColumn.forEach((column) => {
-            column.style.display = "table-cell";
-          });
-        }
       });
   },
 

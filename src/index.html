@@ -18,6 +18,7 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+
   </head>
   <body>
     <div class="container">
@@ -74,7 +75,7 @@
           /></label>
           <div style="display: inline-block; margin-top: 10px;">
             <button type="button" onclick="App.addMissingPerson()">ADD</button>
-            <button type="button" onclick="App.toggleForm()" style="background-color: #CE2029;">CANCEL</button>
+            <button type="button" onclick="App.toggleForm()" style="background-color: #e74c3c;">CANCEL</button>
           </div>
           
         </form>
@@ -82,11 +83,41 @@
       </div>
     </div>
 
+    <div id="content container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Division</th>
+            <th scope="col">Missing</th>
+          </tr>
+        </thead>
+        <tbody id="missingPerDivisonTable">
+          <!-- Rows will be dynamically added here using JavaScript -->
+        </tbody>
+      </table>
+      <h2 id="show-median">Medina: 4</h4>
+    </div>
+
     <div>
       <div id="listHeader">
         <h2 style="margin-right: 30px;">Missing Persons</h2>
         <button id="openFormButton" type="button" onclick="App.toggleForm()">ADD</button>
+        
+        <!-- Dropdown menu for division filter -->
+        <!-- <label for="divisionFilter">Filter by Division:</label> -->
+        <select id="divisionFilter" onchange="filterTable()">
+          <option value="all">All Divisions</option>
+          <option value="Barishal">Barishal</option>
+          <option value="Chittagong">Chittagong</option>
+          <option value="Dhaka">Dhaka</option>
+          <option value="Khulna">Khulna</option>
+          <option value="Rajshahi">Rajshahi</option>
+          <option value="Rangpur">Rangpur</option>
+          <option value="Mymensingh">Mymensingh</option>
+          <option value="Sylhet">Sylhet</option>
+        </select>
       </div>
+      
       
       <div class="container" id="loader">
         <p id="loader-msg" class="text-center">Loading...</p>
@@ -107,7 +138,7 @@
           </thead>
           <tbody id="missingPersonsListResults">
              <!-- add rows from javascript -->
-             <tr></tr>
+          
           </tbody>
         </table>
       </div>
