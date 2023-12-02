@@ -89,13 +89,14 @@
           <tr>
             <th scope="col">Division</th>
             <th scope="col">Missing</th>
+            
           </tr>
         </thead>
         <tbody id="missingPerDivisonTable">
           <!-- Rows will be dynamically added here using JavaScript -->
         </tbody>
       </table>
-      <h2 id="show-median">Medina: 4</h4>
+      <!-- <h2 id="show-median">Median: 4</h4> -->
     </div>
 
     <div>
@@ -105,7 +106,7 @@
         
         <!-- Dropdown menu for division filter -->
         <!-- <label for="divisionFilter">Filter by Division:</label> -->
-        <select id="divisionFilter" onchange="filterTable()">
+        <select id="divisionFilter" onchange="App.filterTable()">
           <option value="all">All Divisions</option>
           <option value="Barishal">Barishal</option>
           <option value="Chittagong">Chittagong</option>

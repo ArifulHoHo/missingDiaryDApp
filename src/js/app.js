@@ -3,6 +3,23 @@ App = {
   contracts: {},
   account: "0x0",
   adminAcess: false,
+  divisonMapping : {
+    0: "Barishal",
+    1: "Chittagong",
+    2: "Dhaka",
+    3: "Khulna",
+    4: "Rajshahi",
+    5: "Rangpur",
+    6: "Mymensingh",
+    7: "Sylhet",
+  },
+
+  statusMapping : {
+    0: "Missing",
+    1: "Found",
+  },
+
+  divisionFilter : 'all',
 
   init: function () {
     return App.initWeb();
@@ -42,16 +59,7 @@ App = {
   },
 
   renderDivisonTable: async function () {
-    const divisonMapping = {
-      0: "Barishal",
-      1: "Chittagong",
-      2: "Dhaka",
-      3: "Khulna",
-      4: "Rajshahi",
-      5: "Rangpur",
-      6: "Mymensingh",
-      7: "Sylhet",
-    };
+    
     var arrayOfMissingPerDivision = [];
     const missingPerDivisonTable = $("#missingPerDivisonTable");
     App.contracts.MissingDiary.deployed()
@@ -60,7 +68,7 @@ App = {
       for (let i = 0; i < 8; i++) {
         instance.missingCountByDivision(i).then(function (num) {
           arrayOfMissingPerDivision.push({
-            name: divisonMapping[i],
+            name: App.divisonMapping[i],
             missing: +num,
           });
         });
@@ -90,14 +98,23 @@ App = {
       }else{
         var median = arrayOfMissingPerDivision[(n/2)+1].missing/2;
       }
+      missingPerDivisonTable.append("<tr style=\"background-color:#e0e0e0;\"><th>Median</th><td class='center'>" +
+      median +
+      "</td></tr>");
       console.log('n ',n,' and median ',median)
-      $("#show-median").text("Median: "+ median);
-    },300);
+      // $("#show-median").text("Median: "+ median);
+    },400);
     
   },
-  
-  render: async function () {
-    App.renderDivisonTable();
+
+  filterTable: function(){
+    App.divisionFilter = $("#divisionFilter").val();
+    console.log(App.divisionFilter);
+    localStorage.setItem('divisionFilter',App.divisionFilter);
+    App.renderMissingListTable();
+  },
+
+  renderMissingListTable: function(){
     let missingDiaryInstance;
     const loader = $("#loader");
     const content = $("#content");
@@ -107,56 +124,12 @@ App = {
     content.hide();
     missingPersonsListResults.empty();
 
-    const divisonMapping = {
-      0: "Barishal",
-      1: "Chittagong",
-      2: "Dhaka",
-      3: "Khulna",
-      4: "Rajshahi",
-      5: "Rangpur",
-      6: "Mymensingh",
-      7: "Sylhet",
-    };
-
-    const statusMapping = {
-      0: "Missing",
-      1: "Found",
-    };
-
-    // load account data
-    if (window.ethereum) {
-      try {
-        // recommended approach to requesting user to connect mmetamask instead of directly getting the accounts
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        App.account = accounts;
-        $("#accountAddress").html("Your Account: " + App.account);
-      } catch (error) {
-        if (error.code === 4001) {
-          // User rejected request
-          console.warn("user rejected");
-        }
-        $("#accountAddress").html("Your Account: Not Connected");
-        console.error(error);
-      }
+    let savedDivisionFIlter = localStorage.getItem('divisionFilter');
+    if (savedDivisionFIlter){
+      App.divisionFilter = savedDivisionFIlter;
     }
 
-    await App.contracts.MissingDiary.deployed()
-      .then(function (instance) {
-        return instance.isAdmin({ from: App.account[0] });
-      })
-      .then(function (isAdmin) {
-        App.adminAcess = isAdmin;
-      });
 
-    
-
-    
-    
- 
-    
-    //load contract data
     App.contracts.MissingDiary.deployed()
       .then(function (instance) {
         missingDiaryInstance = instance;
@@ -171,17 +144,21 @@ App = {
 
         for (let i = 1; i <= listCounter; i++) {
           missingDiaryInstance.missingPersons(i).then(function (person) {
-            var status = statusMapping[person[3]];
+            var status = App.statusMapping[person[3]];
+            var divison = App.divisonMapping[person[5]];
 
             // if (status === "Found") {
             //   return 0;
             // }
+            if (App.divisionFilter !== 'all' && App.divisionFilter !== divison){
+              return 0;
+            }
             var name = person[0];
             var age = person[1];
             var height = person[2];
 
             var description = person[4];
-            var divison = divisonMapping[person[5]];
+            
             var contactNumber = person[6];
             var personTemplate =
               "<tr><th class='center'>" +
@@ -220,6 +197,43 @@ App = {
         loader.hide();
         content.show();
       });
+  },
+  
+  
+  render: async function () {
+    App.renderDivisonTable();
+
+    // load account data
+    if (window.ethereum) {
+      try {
+        // recommended approach to requesting user to connect mmetamask instead of directly getting the accounts
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        App.account = accounts;
+        $("#accountAddress").html("Your Account: " + App.account);
+      } catch (error) {
+        if (error.code === 4001) {
+          // User rejected request
+          console.warn("user rejected");
+        }
+        $("#accountAddress").html("Your Account: Not Connected");
+        console.error(error);
+      }
+    };
+    
+    // checks if the account has admin access
+    await App.contracts.MissingDiary.deployed()
+      .then(function (instance) {
+        return instance.isAdmin({ from: App.account[0] });
+      })
+      .then(function (isAdmin) {
+        App.adminAcess = isAdmin;
+      });
+    
+    //load contract data
+    App.renderMissingListTable();
+    
   },
 
   toggleForm: function () {
