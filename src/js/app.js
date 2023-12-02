@@ -3,7 +3,7 @@ App = {
   contracts: {},
   account: "0x0",
   adminAcess: false,
-  divisonMapping : {
+  divisonMapping: {
     0: "Barishal",
     1: "Chittagong",
     2: "Dhaka",
@@ -14,12 +14,12 @@ App = {
     7: "Sylhet",
   },
 
-  statusMapping : {
+  statusMapping: {
     0: "Missing",
     1: "Found",
   },
 
-  divisionFilter : 'all',
+  divisionFilter: "all",
 
   init: function () {
     return App.initWeb();
@@ -59,11 +59,9 @@ App = {
   },
 
   renderDivisonTable: async function () {
-    
     var arrayOfMissingPerDivision = [];
     const missingPerDivisonTable = $("#missingPerDivisonTable");
-    App.contracts.MissingDiary.deployed()
-    .then(function (instance) {
+    App.contracts.MissingDiary.deployed().then(function (instance) {
       missingPerDivisonTable.empty();
       for (let i = 0; i < 8; i++) {
         instance.missingCountByDivision(i).then(function (num) {
@@ -72,63 +70,66 @@ App = {
             missing: +num,
           });
         });
-      };
+      }
     });
-    
 
-    setTimeout(()=> {
-      arrayOfMissingPerDivision.sort((a,b)=>b.missing - a.missing);
+    setTimeout(() => {
+      arrayOfMissingPerDivision.sort((a, b) => b.missing - a.missing);
+      console.log(arrayOfMissingPerDivision);
       missingPerDivisonTable.empty();
       let n = 0;
-      for(let i=0; i<8; i++){
-          
-          if(arrayOfMissingPerDivision[i].missing > 0){
-            n++;
-            var divisionTemplate =
+      for (let i = 0; i < 8; i++) {
+        if (arrayOfMissingPerDivision[i].missing > 0) {
+          n++;
+          var divisionTemplate =
             "<tr><th>" +
             arrayOfMissingPerDivision[i].name +
             "</th><td class='center'>" +
             arrayOfMissingPerDivision[i].missing +
             "</td></tr>";
-            missingPerDivisonTable.append(divisionTemplate);
-          }
-      };
-      if(n % 2 === 0){
-        var median = (arrayOfMissingPerDivision[n/2].missing + arrayOfMissingPerDivision[(n/2)+1].missing) / 2 ;
-      }else{
-        var median = arrayOfMissingPerDivision[(n/2)+1].missing/2;
+          missingPerDivisonTable.append(divisionTemplate);
+        }
       }
-      missingPerDivisonTable.append("<tr style=\"background-color:#e0e0e0;\"><th>Median</th><td class='center'>" +
-      median +
-      "</td></tr>");
-      console.log('n ',n,' and median ',median)
+      if (n % 2 === 0) {
+        var median =
+          (arrayOfMissingPerDivision[n / 2 - 1].missing +
+            arrayOfMissingPerDivision[n / 2].missing) /
+          2;
+      } else {
+        var median = arrayOfMissingPerDivision[(n + 1) / 2 - 1].missing / 2;
+      }
+      missingPerDivisonTable.append(
+        "<tr style=\"background-color:#e0e0e0;\"><th>Median</th><td class='center'>" +
+          median +
+          "</td></tr>"
+      );
+      console.log("n ", n, " and median ", median);
       // $("#show-median").text("Median: "+ median);
-    },400);
-    
+    }, 400);
   },
 
-  filterTable: function(){
+  filterTable: function () {
     App.divisionFilter = $("#divisionFilter").val();
     console.log(App.divisionFilter);
-    localStorage.setItem('divisionFilter',App.divisionFilter);
+    localStorage.setItem("divisionFilter", App.divisionFilter);
     App.renderMissingListTable();
   },
 
-  renderMissingListTable: function(){
+  renderMissingListTable: function () {
     let missingDiaryInstance;
     const loader = $("#loader");
     const content = $("#content");
     const missingPersonsListResults = $("#missingPersonsListResults");
-    
+
     loader.show();
     content.hide();
     missingPersonsListResults.empty();
 
-    let savedDivisionFIlter = localStorage.getItem('divisionFilter');
-    if (savedDivisionFIlter){
+    let savedDivisionFIlter = localStorage.getItem("divisionFilter");
+    if (savedDivisionFIlter) {
       App.divisionFilter = savedDivisionFIlter;
+      $("#divisionFilter").val(App.divisionFilter);
     }
-
 
     App.contracts.MissingDiary.deployed()
       .then(function (instance) {
@@ -150,7 +151,10 @@ App = {
             // if (status === "Found") {
             //   return 0;
             // }
-            if (App.divisionFilter !== 'all' && App.divisionFilter !== divison){
+            if (
+              App.divisionFilter !== "all" &&
+              App.divisionFilter !== divison
+            ) {
               return 0;
             }
             var name = person[0];
@@ -158,7 +162,7 @@ App = {
             var height = person[2];
 
             var description = person[4];
-            
+
             var contactNumber = person[6];
             var personTemplate =
               "<tr><th class='center'>" +
@@ -198,8 +202,7 @@ App = {
         content.show();
       });
   },
-  
-  
+
   render: async function () {
     App.renderDivisonTable();
 
@@ -220,8 +223,8 @@ App = {
         $("#accountAddress").html("Your Account: Not Connected");
         console.error(error);
       }
-    };
-    
+    }
+
     // checks if the account has admin access
     await App.contracts.MissingDiary.deployed()
       .then(function (instance) {
@@ -230,10 +233,9 @@ App = {
       .then(function (isAdmin) {
         App.adminAcess = isAdmin;
       });
-    
+
     //load contract data
     App.renderMissingListTable();
-    
   },
 
   toggleForm: function () {
@@ -244,6 +246,12 @@ App = {
       openFormButton.hide();
     } else {
       form.hide();
+      $("#name").val("");
+      $("#age").val("");
+      $("#height").val("");
+      $("#description").val("");
+      $("#division").val("");
+      $("#contactNumber").val("");
       openFormButton.show();
     }
   },
@@ -264,6 +272,9 @@ App = {
 
   // add a missing person
   addMissingPerson: function () {
+    if (App.validateForm() === false) {
+      return;
+    }
     let name = $("#name").val();
     let age = parseInt($("#age").val());
     let height = parseInt($("#height").val());
@@ -292,8 +303,55 @@ App = {
       .catch(function (err) {
         console.log(err);
       });
+    $("#name").val("");
+    $("#age").val("");
+    $("#height").val("");
+    $("#description").val("");
+    $("#division").val("");
+    $("#contactNumber").val("");
   },
 
+  validateForm: function () {
+    var age = $("#age").val();
+    var height = $("#height").val();
+    var description = $("#description").val();
+    var name = $("#name").val();
+    var contactNumber = $("#contactNumber").val();
+
+    // Age validation
+    if (age < 1 || age > 150) {
+      alert("Age must be between 1 and 150.");
+      return false;
+    }
+
+    // Height validation
+    if (height < 50 || height > 300) {
+      alert("Height must be between 50 and 300.");
+      return false;
+    }
+
+    // Description length validation
+    if (description.length < 20 || description.length > 150) {
+      alert("Description must be between 20 and 50 characters.");
+      return false;
+    }
+
+    // Name length validation
+    if (name.length < 5) {
+      alert("Name must be at least 5 characters.");
+      return false;
+    }
+
+    // Contact number validation
+    var contactNumberRegex = /^01\d{9}$/;
+    if (!contactNumber.match(contactNumberRegex)) {
+        alert("Contact number must be 11 numerical digits and start with \"01\".");
+        return false;
+    }
+
+    // All validations passed
+    return true;
+  },
   // voted event
   listenForEvents: function () {
     App.contracts.MissingDiary.deployed().then(function (instance) {
