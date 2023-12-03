@@ -3,6 +3,14 @@
 Missing diaries is a DApp which keeps the record of missing people around us. The DApp uses an ethereum private network using Ganache, Remix IDE is used to write and test the smart contract in solidity. It also needs the setup of truffle to develop the decentralized application(DApp) and metamask to access the geth accounts. **Ubuntu 20.04** is used to setup and create and test the whole project.
 
 ## What are these?
+
+### DApp or Decentralized Application:
+
+A DApp, short for Decentralized Application, is a type of software application that runs on a decentralized network of computers rather than being hosted on a single centralized server. The key characteristics of DApps are:
+* Decentralization: Unlike traditional applications that rely on a central server, DApps operate on a decentralized network of nodes. This decentralized nature ensures that no single entity has complete control over the application.
+* Blockchain Technology: DApps often leverage blockchain technology, which is a distributed ledger that records transactions across a network of computers. The blockchain provides transparency, immutability, and security to the data and logic of the application.
+* Smart Contracts: DApps commonly use smart contracts, which are self-executing contracts with the terms of the agreement directly written into code. Smart contracts run on blockchain platforms like Ethereum and automatically execute predefined actions when certain conditions are met.
+  
 ### Ethereum and Ganache:
 
 **Ethereum** is a decentralized platform that enables the creation and execution of smart contracts and decentralized applications (DApps). Unlike **Bitcoin**, which primarily focuses on peer-to-peer transactions, Ethereum extends the blockchain concept to include a wide range of applications. The native cryptocurrency of Ethereum is called **Ether (ETH)**. One of the key features that makes Ethereum stand out is its ability to execute smart contracts, which are self-executing contracts with the terms written directly into code. For more info: https://ethereum.org/en/
@@ -28,4 +36,10 @@ Missing diaries is a DApp which keeps the record of missing people around us. Th
 * **Actions**: Users may need to search missing people in a specific area. Therefore, you need to add a feature where users can search missing people by filtering 8 divisions of bangladesh. For example: Dhaka, Chittagong etc. In addition you must show the missing count of all of the eight districts in ascending or descending order and the median value of missing persons count among them.
 * **Update missing status**: There are some predefined users, who work as admin. An “admin” only can update the missing status from “status: missing” to “status: found” in the application.
 
-## How to run the project in your device
+## How to run the project
+
+### Step 1: Operating system
+Make sure your operating system is linux based. The project has been created and tested in Ubuntu 20.04. You can use later versions of ubuntu as well. You can either dual boot your computer or use a virtual machine which is more preferable if you are not a linux user already.
+### Step 2: Metamask
+
+
