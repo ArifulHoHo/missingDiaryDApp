@@ -58,6 +58,7 @@ App = {
     });
   },
 
+  // this function displays the missing-per-division table in descending order
   renderDivisonTable: async function () {
     var arrayOfMissingPerDivision = [];
     const missingPerDivisonTable = $("#missingPerDivisonTable");
@@ -73,6 +74,7 @@ App = {
       }
     });
 
+    // let all data be received and execute the below code after 400ms
     setTimeout(() => {
       arrayOfMissingPerDivision.sort((a, b) => b.missing - a.missing);
       console.log(arrayOfMissingPerDivision);
@@ -90,6 +92,7 @@ App = {
           missingPerDivisonTable.append(divisionTemplate);
         }
       }
+      // median calculation
       if (n % 2 === 0) {
         var median =
           (arrayOfMissingPerDivision[n / 2 - 1].missing +
@@ -98,16 +101,17 @@ App = {
       } else {
         var median = arrayOfMissingPerDivision[(n + 1) / 2 - 1].missing / 2;
       }
+
       missingPerDivisonTable.append(
         "<tr style=\"background-color:#e0e0e0;\"><th>Median</th><td class='center'>" +
           median +
           "</td></tr>"
       );
       console.log("n ", n, " and median ", median);
-      // $("#show-median").text("Median: "+ median);
     }, 400);
   },
 
+  // this is used to filter the missing person table by division selected by the user
   filterTable: function () {
     App.divisionFilter = $("#divisionFilter").val();
     console.log(App.divisionFilter);
@@ -115,8 +119,10 @@ App = {
     App.renderMissingListTable();
   },
 
+  // this displays the missing person table
   renderMissingListTable: function () {
     let missingDiaryInstance;
+
     const loader = $("#loader");
     const content = $("#content");
     const missingPersonsListResults = $("#missingPersonsListResults");
@@ -125,6 +131,7 @@ App = {
     content.hide();
     missingPersonsListResults.empty();
 
+    // check if local storage has any filter value
     let savedDivisionFIlter = localStorage.getItem("divisionFilter");
     if (savedDivisionFIlter) {
       App.divisionFilter = savedDivisionFIlter;
@@ -137,8 +144,11 @@ App = {
         return missingDiaryInstance.missingPersonListCounter();
       })
       .then(function (listCounter) {
+        // check if there is any data
         if (listCounter == 0) {
           loader.html("There is no data available!");
+          const missingPerDivisonTable = $("#missingPerDivisonTableHeader");
+          missingPerDivisonTable.hide();
           return;
         }
         missingPersonsListResults.empty();
@@ -181,8 +191,9 @@ App = {
               contactNumber +
               "</td>";
 
+            // checks if user is the admin
             if (App.adminAcess == true && status !== "Found") {
-              console.log("in");
+              // if admin and status is missing, admin will have toggleStatus feature button
               personTemplate +=
                 "<td class='center'>" +
                 '<button id="toggleStatusButton" onclick="App.toggleStatus(\'' +
@@ -204,6 +215,7 @@ App = {
   },
 
   render: async function () {
+    // render missing per division table
     App.renderDivisonTable();
 
     // load account data
@@ -256,6 +268,7 @@ App = {
     }
   },
 
+  // triggers to change status from missing to found
   toggleStatus: function (id) {
     App.contracts.MissingDiary.deployed()
       .then(function (instance) {
@@ -299,16 +312,18 @@ App = {
       .then(function (result) {
         console.log(result);
         alert("Missing Person details have been added successfully");
+
+        // empty the form fields
+        $("#name").val("");
+        $("#age").val("");
+        $("#height").val("");
+        $("#description").val("");
+        $("#division").val("");
+        $("#contactNumber").val("");
       })
       .catch(function (err) {
         console.log(err);
       });
-    $("#name").val("");
-    $("#age").val("");
-    $("#height").val("");
-    $("#description").val("");
-    $("#division").val("");
-    $("#contactNumber").val("");
   },
 
   validateForm: function () {
@@ -345,13 +360,14 @@ App = {
     // Contact number validation
     var contactNumberRegex = /^01\d{9}$/;
     if (!contactNumber.match(contactNumberRegex)) {
-        alert("Contact number must be 11 numerical digits and start with \"01\".");
-        return false;
+      alert('Contact number must be 11 numerical digits and start with "01".');
+      return false;
     }
 
     // All validations passed
     return true;
   },
+
   // voted event
   listenForEvents: function () {
     App.contracts.MissingDiary.deployed().then(function (instance) {

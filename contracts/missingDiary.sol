@@ -103,6 +103,7 @@ contract missingDiary{
         emit statusUpdatedEvent(admin, _personId, Status.Found);
     }
 
+    // returns if the current user is admin or not
     function isAdmin() external view returns (bool){
         return msg.sender == admin;
     }
