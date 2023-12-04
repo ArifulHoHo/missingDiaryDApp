@@ -183,7 +183,7 @@ App = {
               age +
               "</td><td class='center'>" +
               height +
-              "</td><td class='center'>" +
+              "</td><td>" +
               description +
               "</td><td class='center'>" +
               divison +
@@ -285,15 +285,17 @@ App = {
 
   // add a missing person
   addMissingPerson: function () {
-    if (App.validateForm() === false) {
-      return;
-    }
+   
     let name = $("#name").val();
     let age = parseInt($("#age").val());
     let height = parseInt($("#height").val());
     let description = $("#description").val();
     let division = parseInt($("#division").val());
     let contactNumber = $("#contactNumber").val();
+
+    if (App.validateForm(name, age, height, description, contactNumber) === false) {
+        return 0;
+    }
 
     console.log(name, age, height, description, division, contactNumber);
 
@@ -326,13 +328,7 @@ App = {
       });
   },
 
-  validateForm: function () {
-    var age = $("#age").val();
-    var height = $("#height").val();
-    var description = $("#description").val();
-    var name = $("#name").val();
-    var contactNumber = $("#contactNumber").val();
-
+  validateForm: function (name, age, height, description, contactNumber) {
     // Age validation
     if (age < 1 || age > 150) {
       alert("Age must be between 1 and 150.");
