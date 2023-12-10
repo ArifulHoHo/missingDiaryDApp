@@ -35,11 +35,3 @@ A DApp, short for Decentralized Application, is a type of software application t
 * **Add Data**: Users can post data of missing people. Added data should be visible to the user without refreshing the page right after posting it.
 * **Actions**: Users may need to search missing people in a specific area. Therefore, you need to add a feature where users can search missing people by filtering 8 divisions of bangladesh. For example: Dhaka, Chittagong etc. In addition you must show the missing count of all of the eight districts in ascending or descending order and the median value of missing persons count among them.
 * **Update missing status**: There are some predefined users, who work as admin. An “admin” only can update the missing status from “status: missing” to “status: found” in the application.
-
-## How to run the project
-
-### Step 1: Operating system
-Make sure your operating system is linux based. The project has been created and tested in Ubuntu 20.04. You can use later versions of ubuntu as well. You can either dual boot your computer or use a virtual machine which is more preferable if you are not a linux user already.
-### Step 2: Metamask
-
-
