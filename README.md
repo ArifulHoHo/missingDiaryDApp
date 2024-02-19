@@ -32,6 +32,10 @@ A DApp, short for Decentralized Application, is a type of software application t
 ## App features
 
 * **Missing Person**: The DApp will store data of missing persons. Specifically, you need to store a person's name, age, height, status(either “missing” or “found”), small description, division from where the person got missing and a relative’s contact number.
+
+## Installation Guide
+
+A pdf has been uploaded or visit https://github.com/YEASIN49/CSE446-Content/tree/main/Lab%2006 to know how to set up a DApp using Metamask, Ganache and Truffle.
 * **Add Data**: Users can post data of missing people. Added data should be visible to the user without refreshing the page right after posting it.
 * **Actions**: Users may need to search missing people in a specific area. Therefore, you need to add a feature where users can search missing people by filtering 8 divisions of bangladesh. For example: Dhaka, Chittagong etc. In addition you must show the missing count of all of the eight districts in ascending or descending order and the median value of missing persons count among them.
 * **Update missing status**: There are some predefined users, who work as admin. An “admin” only can update the missing status from “status: missing” to “status: found” in the application.
